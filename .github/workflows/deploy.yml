@@ -1,0 +1,65 @@
+name: AutoCode Nexus CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 1. TESTING AGENT: Backend Tests
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt pytest
+      - name: Run Backend Unit Tests (TDD)
+        run: |
+          cd backend
+          pytest test_main.py --cov=main --cov-report=term-missing
+
+      # 2. TESTING AGENT: Frontend Tests
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          flutter pub get
+      - name: Run Frontend Unit Tests
+        run: |
+          cd frontend
+          flutter test
+
+      # 3. DEPLOYMENT: Vercel (Frontend)
+      - name: Deploy Frontend to Vercel
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./frontend
+          vercel-args: '--prod'
+
+      # 4. DEPLOYMENT: Google Cloud Run (Backend)
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Deploy Backend to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: laihoa-video-backend
+          source: ./backend
+          region: asia-southeast1
+          env_vars: |
+            GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
