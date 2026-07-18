@@ -39,6 +39,11 @@ jobs:
         run: |
           cd frontend
           flutter test
+      
+      - name: Build Frontend for Web
+        run: |
+          cd frontend
+          flutter build web --release
 
       # 3. DEPLOYMENT: Vercel (Frontend)
       - name: Deploy Frontend to Vercel
@@ -47,7 +52,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./frontend
+          working-directory: ./frontend/build/web
           vercel-args: '--prod'
 
       # 4. DEPLOYMENT: Google Cloud Run (Backend)
