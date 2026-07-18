@@ -3,7 +3,7 @@ name: AutoCode Nexus CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   test_and_deploy:
