@@ -14,10 +14,10 @@ class LaiHoaVideoApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue.shade900),
-        cardTheme: CardTheme(
+        cardTheme: const CardThemeData(
           elevation: 8,
           shadowColor: Colors.black26,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
